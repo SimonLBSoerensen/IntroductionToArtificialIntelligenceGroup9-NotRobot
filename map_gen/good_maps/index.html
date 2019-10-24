@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Title</title>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+			crossorigin="anonymous"
+		/>
+		<script src="https://kit.fontawesome.com/e2941ca3bb.js"></script>
+		<script src="jquery-3.4.1.js"></script>
+		<script src="libgif.js"></script>
+		<script src="rubbable.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+		<style>
+			.hidden {
+				display: none;
+			}
+			.card {
+				width: 200px;
+				float: left;
+			}
+		</style>
+
+		<script>
+			var clip_out;
+			document.addEventListener("copy", function(event) {
+				event.preventDefault();
+				if (event.clipboardData) {
+					event.clipboardData.setData("text/plain", clip_out);
+				} else if (window.clipboardData) {
+					window.clipboardData.setData("Text", clip_out);
+				}
+				$(".toast").toast("show");
+			});
+
+			function replaceAll(text, search, replacement) {
+				while (text.indexOf(search) != -1) {
+					text = text.replace(search, replacement);
+				}
+				return text;
+			}
+
+			function download(filename, text) {
+				var element = document.createElement("a");
+				element.setAttribute(
+					"href",
+					"data:text/plain;charset=utf-8," +
+						encodeURIComponent('{"table":' + text + "}")
+				);
+				element.setAttribute("download", filename);
+
+				element.style.display = "none";
+				document.body.appendChild(element);
+
+				element.click();
+
+				document.body.removeChild(element);
+			}
+
+			var done_with_cards = false;
+			$(document).ready(function($) {
+				function readTextFile(file, name) {
+					var rawFile = new XMLHttpRequest(); // XMLHttpRequest (often abbreviated as XHR) is a browser object accessible in JavaScript that provides data in XML, JSON, but also HTML format, or even a simple text using HTTP requests.
+					rawFile.open("GET", file, false); // open with method GET the file with the link file ,  false (synchronous)
+					rawFile.onreadystatechange = function() {
+						if (rawFile.readyState === 4) {
+							// readyState = 4: request finished and response is ready
+							if (rawFile.status === 200) {
+								// status 200: "OK"
+								let allText = rawFile.responseText; //  Returns the response data as a string
+								let card = $("#" + name);
+								let card_text = card.find(".card-text");
+								card_text.text(allText);
+								console.log(allText);
+							}
+						}
+					};
+					rawFile.send(null); //Sends the request to the server Used for GET requests with param null
+				}
+
+				$.getJSON("maps/maps.json", function(data) {
+					var card_columns = $("#card_collection");
+
+					$.each(data.maps, function(index, name) {
+						let map_gif = "maps/" + name + ".gif";
+						let map_png = "maps/" + name + ".png";
+						let map_cmap = "maps/" + name + ".map";
+
+						let card_div = $(
+							'<div class="card gif_card p-3"></div>'
+						);
+						card_div.attr("id", name);
+						let card_img = $('<img class="card-img-top" />');
+						card_img.attr("src", map_png);
+
+						let card_body = $(
+							'<div class="card-body hidden"> <p class="card-text">  Blank templet </p></div>'
+						);
+						card_div.append(card_img);
+						card_div.append(card_body);
+						card_columns.append(card_div);
+						readTextFile(map_cmap, name);
+					});
+					done_with_cards = true;
+
+					$(".gif_card").mouseenter(function() {
+						let card = $(this);
+						let name = card
+							.find("img")
+							.attr("src")
+							.split(".")[0];
+						card.find("img").attr("src", name + ".gif");
+
+						clip_out = card.find(".card-text").text();
+
+						console.log("Hover", card);
+					});
+					$(".gif_card").mouseleave(function() {
+						let card = $(this);
+						let name = card
+							.find("img")
+							.attr("src")
+							.split(".")[0];
+						card.find("img").attr("src", name + ".png");
+					});
+
+					$(".gif_card").mousedown(function(event) {
+						switch (event.which) {
+							case 1: //Left
+								document.execCommand("copy");
+								break;
+							case 2: //Middle
+								break;
+							case 3: //Right
+								download(
+									"map.json",
+									replaceAll(clip_out, "'", '"')
+								);
+								break;
+							default: //strange Mouse
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<section id="cards"></section>
+		<x-gif src="maps/0ccc1e02-1620-4a4b-a083-86ba1ea195be.gif"></x-gif>
+
+		<div id="card_collection"></div>
+		<div class="toast">
+			<div class="toast-header">
+				Copy
+			</div>
+			<div class="toast-body">
+				Chek your clipborad
+			</div>
+		</div>
+	</body>
+</html>

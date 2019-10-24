@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Users\simon\OneDrive - Syddansk Universitet\Studie\7 semester\AI\AIGit-NotRobot\map_gen\mapgen\mapgen\main.cpp(39,21): warning C4244:  'argument': conversion from 'time_t' to 'int', possible loss of data
+C:\Users\simon\OneDrive - Syddansk Universitet\Studie\7 semester\AI\AIGit-NotRobot\map_gen\mapgen\mapgen\main.cpp(92,22): warning C4244:  'argument': conversion from 'time_t' to 'int', possible loss of data
+  mapgen.vcxproj -> C:\Users\simon\OneDrive - Syddansk Universitet\Studie\7 semester\AI\AIGit-NotRobot\map_gen\mapgen\Debug\mapgen.exe
